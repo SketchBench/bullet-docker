@@ -18,17 +18,17 @@ bullet.spark.receiver.query.coalesce.partitions: 10
 bullet.spark.data.producer.parallelism: 1
 
 # This is the checkpoint directory. If you are running your Spark on a cluster, the directory must be an HDFS path.
-bullet.spark.checkpoint.dir: "/tmp/spark-checkpoint"
+bullet.spark.checkpoint.dir: "hdfs://namenode:9000/spark/checkpoints"
 
 # If true, Bullet Spark recovers context from checkpoint files when restarting.
 # Otherwise Bullet Spark creates a new context.
-bullet.spark.recover.from.checkpoint.enable: false
+bullet.spark.recover.from.checkpoint.enable: true
 
 # This is the Spark application name.
 bullet.spark.app.name: "BulletSparkStreamingJob"
 
 # If true, Bullet Spark collects metrics which can be accessed via the Spark REST API (/metrics/json).
-bullet.spark.metrics.enabled: false
+bullet.spark.metrics.enabled: true
 
 # If true, enables parallel processing of queries in each partition of the Filter Streaming job, This is particularly
 # useful when using Producers that are Direct (e.g. DirectKafkaProducer) and you would like to avoid repartitioning

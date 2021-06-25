@@ -5,32 +5,36 @@ services:
     build:
       context: .
       dockerfile: ui.dockerfile
+    container_name: bullet-ui
     ports:
-      - "8800:8800"
+      - 8800:8800
     depends_on:
       - bullet-webservice
   bullet-webservice:
     build:
       context: .
       dockerfile: webservice.dockerfile
+    container_name: bullet-webservice
     ports:
-      - "9999:9999"
+      - 9999:9999
     depends_on:
       - kafka
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.7
+    container_name: zookeeper
     ports:
-      - "2181:2181"
+      - 2181:2181
     volumes:
-      - "zookeeper_data:/bitnami"
+      - zookeeper_data:/bitnami
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
   kafka:
     image: docker.io/bitnami/kafka:2
+    container_name: kafka
     ports:
-      - "9092:9092"
+      - 9092:9092
     volumes:
-      - "kafka_data:/bitnami"
+      - kafka_data:/bitnami
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -43,18 +47,19 @@ services:
       - zookeeper
   kafdrop:
     image: obsidiandynamics/kafdrop:3.28.0-SNAPSHOT
-    restart: always
+    container_name: kafdrop
     ports:
-      - "9000:9000"
+      - 9900:9000
     environment:
       KAFKA_BROKERCONNECT: "kafka:29092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
-      - "kafka"
+      - kafka
   spark:
     build:
       context: .
       dockerfile: spark-backend.dockerfile
+    container_name: spark
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -62,75 +67,114 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     ports:
-      - "8080:8080"
-      - "7077:7077"
+      - 8080:8080
+      - 7077:7077
   spark-worker-1:
     build:
       context: .
       dockerfile: spark-backend.dockerfile
+    container_name: spark-worker-1
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=12G
-      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=6G
+      - SPARK_WORKER_CORES=3
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     ports:
-      - "8081:8081"
-      - "4041:4040"
+      - 8081:8081
+      - 4041:4040
   spark-worker-2:
     build:
       context: .
       dockerfile: spark-backend.dockerfile
+    container_name: spark-worker-2
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=12G
-      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=6G
+      - SPARK_WORKER_CORES=3
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     ports:
-      - "8082:8081"
-      - "4042:4040"
+      - 8082:8081
+      - 4042:4040
   spark-worker-3:
     build:
       context: .
       dockerfile: spark-backend.dockerfile
+    container_name: spark-worker-3
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=12G
-      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=6G
+      - SPARK_WORKER_CORES=3
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     ports:
-      - "8083:8081"
-      - "4043:4040"
-  spark-worker-4:
-    build:
-      context: .
-      dockerfile: spark-backend.dockerfile
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=12G
-      - SPARK_WORKER_CORES=2
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+      - 8083:8081
+      - 4043:4040
+  # Hadoop for Bullet Spark Checkpoints on HDFS
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    restart: always
     ports:
-      - "8084:8081"
-      - "4044:4040"
+      - 9870:9870
+      - 9000:9000
+      - 8020:8020
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop.env
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    restart: always
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: resourcemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+      - ./hadoop.env
+  nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    env_file:
+      - ./hadoop.env
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    container_name: historyserver
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    volumes:
+      - hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./hadoop.env
 
 volumes:
   zookeeper_data:
-    driver: local
   kafka_data:
-    driver: local
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_historyserver:
