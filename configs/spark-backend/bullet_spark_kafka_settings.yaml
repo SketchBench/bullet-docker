@@ -22,7 +22,7 @@ bullet.spark.checkpoint.dir: "hdfs://namenode:9000/spark/checkpoints"
 
 # If true, Bullet Spark recovers context from checkpoint files when restarting.
 # Otherwise Bullet Spark creates a new context.
-bullet.spark.recover.from.checkpoint.enable: true
+bullet.spark.recover.from.checkpoint.enable: false
 
 # This is the Spark application name.
 bullet.spark.app.name: "BulletSparkStreamingJob"
