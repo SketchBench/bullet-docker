@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   bullet-ui:
@@ -19,8 +19,40 @@ services:
     restart: always
     ports:
       - 9999:9999
+    volumes:
+      - ./configs/web-service:/usr/local/var/bullet/config
     depends_on:
       - kafka
+  bullet-spark:
+    build:
+      context: .
+      dockerfile: spark-backend.dockerfile
+    container_name: bullet-spark
+    restart: always
+    ports:
+      - 4040:4040
+    volumes:
+      - ./configs/spark-backend:/bullet/configs
+    command:
+      [
+        "spark-submit",
+        "--master",
+        "spark://spark:7077",
+        "--deploy-mode",
+        "client",
+        "--class",
+        "com.yahoo.bullet.spark.BulletSparkStreamingMain",
+        "--jars",
+        "/opt/bitnami/spark/jars/bullet-kafka-1.2.2-fat.jar,/opt/bitnami/spark/jars/bullet-spark-example.jar",
+        "/opt/bitnami/spark/jars/bullet-spark-1.0.4-standalone.jar",
+        "--bullet-spark-conf",
+        "/bullet/configs/bullet_spark_kafka_settings.yaml",
+      ]
+    depends_on:
+      - spark
+      - spark-worker-1
+      - spark-worker-2
+      - spark-worker-3
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.7
     container_name: zookeeper
@@ -126,37 +158,6 @@ services:
       - SPARK_SSL_ENABLED=no
     ports:
       - 8083:8081
-  bullet-spark:
-    build:
-      context: .
-      dockerfile: spark-backend.dockerfile
-    container_name: bullet-spark
-    restart: always
-    ports:
-      - 4040:4040
-    volumes:
-      # Paths on the host, relative to the Compose file
-      - ./configs/spark-backend:/bullet/configs
-    command:
-      [
-        "spark-submit",
-        "--master",
-        "spark://spark:7077",
-        "--deploy-mode",
-        "client",
-        "--class",
-        "com.yahoo.bullet.spark.BulletSparkStreamingMain",
-        "--jars",
-        "/opt/bitnami/spark/jars/bullet-kafka-1.2.2-fat.jar,/opt/bitnami/spark/jars/bullet-spark-example.jar",
-        "/opt/bitnami/spark/jars/bullet-spark-1.0.4-standalone.jar",
-        "--bullet-spark-conf",
-        "/bullet/configs/bullet_spark_kafka_settings.yaml",
-      ]
-    depends_on:
-      - spark
-      - spark-worker-1
-      - spark-worker-2
-      - spark-worker-3
   # Hadoop for Bullet Spark Checkpoints on HDFS
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8

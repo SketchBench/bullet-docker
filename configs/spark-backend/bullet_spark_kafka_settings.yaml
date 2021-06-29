@@ -91,6 +91,7 @@ bullet.pubsub.class.name: "com.yahoo.bullet.kafka.KafkaPubSub"
 bullet.pubsub.kafka.bootstrap.servers: "kafka:29092"
 bullet.pubsub.kafka.request.topic.name: "bullet.requests"
 bullet.pubsub.kafka.response.topic.name: "bullet.responses"
+bullet.pubsub.message.serde.class.name: "com.yahoo.bullet.pubsub.IdentityPubSubMessageSerDe"
 
 ########################################################################################################################
 ############################################### Bullet Core settings ###################################################
