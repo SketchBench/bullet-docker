@@ -3,19 +3,17 @@ version: "3"
 services:
   bullet-ui:
     build:
-      context: .
-      dockerfile: ui.dockerfile
+      context: ./components/ui
     container_name: bullet-ui
     restart: always
     ports:
       - 8800:8800
     depends_on:
-      - bullet-webservice
-  bullet-webservice:
+      - bullet-service
+  bullet-service:
     build:
-      context: .
-      dockerfile: webservice.dockerfile
-    container_name: bullet-webservice
+      context: ./components/service
+    container_name: bullet-service
     restart: always
     ports:
       - 9999:9999
@@ -25,8 +23,7 @@ services:
       - kafka
   bullet-spark:
     build:
-      context: .
-      dockerfile: spark-backend.dockerfile
+      context: ./components/spark
     container_name: bullet-spark
     restart: always
     ports:
@@ -94,8 +91,7 @@ services:
       - kafka
   spark:
     build:
-      context: .
-      dockerfile: spark-backend.dockerfile
+      context: ./components/spark
     container_name: spark
     restart: always
     environment:
@@ -109,8 +105,7 @@ services:
       - 7077:7077
   spark-worker-1:
     build:
-      context: .
-      dockerfile: spark-backend.dockerfile
+      context: ./components/spark
     container_name: spark-worker-1
     restart: always
     environment:
@@ -126,8 +121,7 @@ services:
       - 8081:8081
   spark-worker-2:
     build:
-      context: .
-      dockerfile: spark-backend.dockerfile
+      context: ./components/spark
     container_name: spark-worker-2
     restart: always
     environment:
@@ -143,8 +137,7 @@ services:
       - 8082:8081
   spark-worker-3:
     build:
-      context: .
-      dockerfile: spark-backend.dockerfile
+      context: ./components/spark
     container_name: spark-worker-3
     restart: always
     environment:
