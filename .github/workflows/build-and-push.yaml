@@ -1,11 +1,11 @@
 name: ci
 
 on:
-  # schedule:
-  #   - cron: '0 10 * * *' # everyday at 10am
-  # push:
-  #   branches:
-  #     - "main"
+  schedule:
+    - cron: "0 10 * * 0" # Every Sunday at 10am
+  push:
+    branches:
+      - "main"
   pull_request:
     branches:
       - "main"
@@ -65,13 +65,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub
-        # todo: if: ${{ github.event_name != 'pull_request' }}
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to GitHub Container Registry
-        # todo: if: ${{ github.event_name != 'pull_request' }}
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
@@ -83,25 +83,27 @@ jobs:
         with:
           context: ./components/${{ matrix.component }}
           platforms: linux/amd64,linux/arm64
-          push: false #todo: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name != 'pull_request' }}
           build-args: ${{ matrix.build-args }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=sketchbench/bullet-${{ matrix.component }}:main
           cache-to: type=inline
-      # - name: Inspect image
-      #   if: github.event_name != 'pull_request'
-      #   run: |
-      #     docker pull ${{ matrix.slug }}:${{ steps.meta.outputs.version }}
-      #     docker image inspect ${{ matrix.slug }}:${{ steps.meta.outputs.version }}
-      # - name: Check manifest
-      #   if: github.event_name != 'pull_request'
-      #   run: |
-      #     docker buildx imagetools inspect ${{ matrix.slug }}:${{ steps.meta.outputs.version }}
-      # - name: Update Docker Hub repo description
-      #   # todo: if: ${{ github.event_name != 'pull_request' }}
-      #   uses: peter-evans/dockerhub-description@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-      #     repository: user/app
+      - name: Inspect image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker pull sketchbench/bullet-${{ matrix.component }}:${{ matrix.version }}
+          docker image inspect sketchbench/bullet-${{ matrix.component }}:${{ matrix.version }}
+      - name: Check manifest
+        if: github.event_name != 'pull_request'
+        run: |
+          docker buildx imagetools inspect sketchbench/bullet-${{ matrix.component }}:${{ matrix.version }}
+      - name: Update Docker Hub repo description
+        if: github.event_name != 'pull_request'
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: sketchbench/bullet-${{ matrix.component }}
+          short-description: ${{ matrix.description }}
+          readme-filepath: ./components/${{ matrix.component }}/README.md
