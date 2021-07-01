@@ -19,7 +19,7 @@ jobs:
           - component: spark
             version: "1.0.4"
             latest: true
-            description: This is the implementation of Bullet in Apache Spark Streaming.
+            description: The implementation of Bullet on Apache Spark Streaming.
             build-args: |
               BULLET_EXAMPLES_VERSION=1.0.0
               BULLET_KAFKA_VERSION=1.2.2
@@ -27,13 +27,13 @@ jobs:
           - component: ui
             version: "1.1.0"
             latest: true
-            description: The Bullet UI allows to build, run, save and visualize results from Bullet.
+            description: The UI for Bullet built in Ember 3 Octane.
             build-args: |
               BULLET_UI_VERSION=1.1.0
           - component: service
             version: "1.1.0"
             latest: true
-            description: This is the Web Service for Bullet in Spring Boot.
+            description: The Web Service layer for Bullet.
             build-args: |
               BULLET_WS_VERSION=1.1.0
               BULLET_KAFKA_VERSION=1.2.2
