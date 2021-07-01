@@ -20,7 +20,7 @@ services:
     ports:
       - 9999:9999
     volumes:
-      - ./configs/web-service:/usr/local/var/bullet/config
+      - ./configs/service:/usr/local/var/bullet/config
     depends_on:
       - kafka
   bullet-spark:
@@ -32,7 +32,7 @@ services:
     ports:
       - 4040:4040
     volumes:
-      - ./configs/spark-backend:/bullet/configs
+      - ./configs/spark:/bullet/configs
     command:
       [
         "spark-submit",
@@ -172,7 +172,7 @@ services:
     environment:
       - CLUSTER_NAME=test
     env_file:
-      - ./hadoop.env
+      - ./configs/hadoop/hadoop.env
   datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode
@@ -182,7 +182,7 @@ services:
     environment:
       SERVICE_PRECONDITION: "namenode:9870"
     env_file:
-      - ./hadoop.env
+      - ./configs/hadoop/hadoop.env
   resourcemanager:
     image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
     container_name: resourcemanager
@@ -190,7 +190,7 @@ services:
     environment:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
     env_file:
-      - ./hadoop.env
+      - ./configs/hadoop/hadoop.env
   nodemanager:
     image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
     container_name: nodemanager
@@ -198,7 +198,7 @@ services:
     environment:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
-      - ./hadoop.env
+      - ./configs/hadoop/hadoop.env
   historyserver:
     image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
     container_name: historyserver
@@ -208,7 +208,7 @@ services:
     volumes:
       - hadoop_historyserver:/hadoop/yarn/timeline
     env_file:
-      - ./hadoop.env
+      - ./configs/hadoop/hadoop.env
 
 volumes:
   zookeeper_data:
