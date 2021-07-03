@@ -3,6 +3,7 @@ FROM docker.io/bitnami/spark:3
 ARG BULLET_EXAMPLES_VERSION=1.0.0
 ARG BULLET_KAFKA_VERSION=1.2.2
 ARG BULLET_SPARK_VERSION=1.0.4
+ARG BULLET_DSL_VERSION=1.1.6
 
 # bullet-spark-example
 RUN mkdir -p /tmp/examples_artifacts && \
@@ -16,3 +17,6 @@ RUN curl --retry 2 -L -s -o /opt/bitnami/spark/jars/bullet-kafka-${BULLET_KAFKA_
 
 # bullet-spark (standalone)
 RUN curl --retry 2 -L -s -o /opt/bitnami/spark/jars/bullet-spark-${BULLET_SPARK_VERSION}-standalone.jar https://search.maven.org/remotecontent?filepath=com/yahoo/bullet/bullet-spark/${BULLET_SPARK_VERSION}/bullet-spark-${BULLET_SPARK_VERSION}-standalone.jar
+
+# bullet-dsl ("normal" jar)
+RUN curl --retry 2 -L -s -o /opt/bitnami/spark/jars/bullet-dsl.jar https://search.maven.org/remotecontent?filepath=com/yahoo/bullet/bullet-dsl/${BULLET_DSL_VERSION}/bullet-dsl-${BULLET_DSL_VERSION}.jar
