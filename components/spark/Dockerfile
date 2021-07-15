@@ -1,4 +1,6 @@
-FROM docker.io/bitnami/spark:3
+
+ARG SPARK_VERSION=3
+FROM docker.io/bitnami/spark:${SPARK_VERSION}
 
 ARG BULLET_EXAMPLES_VERSION=1.0.0
 ARG BULLET_KAFKA_VERSION=1.2.2

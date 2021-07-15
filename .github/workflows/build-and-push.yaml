@@ -25,6 +25,16 @@ jobs:
               BULLET_KAFKA_VERSION=1.2.2
               BULLET_SPARK_VERSION=1.0.4
               BULLET_DSL_VERSION=1.1.6
+          - component: spark-3.0
+            version: "1.0.4"
+            latest: true
+            description: The implementation of Bullet on Apache Spark Streaming 3.0.
+            build-args: |
+              SPARK_VERSION=3.0.2
+              BULLET_EXAMPLES_VERSION=1.0.0
+              BULLET_KAFKA_VERSION=1.2.2
+              BULLET_SPARK_VERSION=1.0.4
+              BULLET_DSL_VERSION=1.1.6
           - component: ui
             version: "1.1.0"
             latest: true
