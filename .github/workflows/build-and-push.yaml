@@ -19,6 +19,7 @@ jobs:
           - component: spark
             version: "1.0.4"
             latest: true
+            context: ./components/spark
             description: The implementation of Bullet on Apache Spark Streaming.
             build-args: |
               BULLET_EXAMPLES_VERSION=1.0.0
@@ -28,6 +29,7 @@ jobs:
           - component: spark-3.0
             version: "1.0.4"
             latest: true
+            context: ./components/spark
             description: The implementation of Bullet on Apache Spark Streaming 3.0.
             build-args: |
               SPARK_VERSION=3.0.2
@@ -38,12 +40,14 @@ jobs:
           - component: ui
             version: "1.1.0"
             latest: true
+            context: ./components/ui
             description: The UI for Bullet built in Ember 3 Octane.
             build-args: |
               BULLET_UI_VERSION=1.1.0
           - component: service
             version: "1.1.0"
             latest: true
+            context: ./components/service
             description: The Web Service layer for Bullet.
             build-args: |
               BULLET_WS_VERSION=1.1.0
@@ -92,7 +96,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: ./components/${{ matrix.component }}
+          context: ${{ matrix.context }}
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           build-args: ${{ matrix.build-args }}
