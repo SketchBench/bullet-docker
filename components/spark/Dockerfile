@@ -1,9 +1,15 @@
-FROM docker.io/bitnami/spark:3
+
+ARG SPARK_VERSION=3
+FROM docker.io/bitnami/spark:${SPARK_VERSION}
 
 ARG BULLET_EXAMPLES_VERSION=1.0.0
 ARG BULLET_KAFKA_VERSION=1.2.2
 ARG BULLET_SPARK_VERSION=1.0.4
 ARG BULLET_DSL_VERSION=1.1.6
+
+USER 0
+RUN . /opt/bitnami/scripts/libcomponent.sh && component_unpack "python" "3.7.11-0" --checksum 332cd96e2483f4f6570c2fcb9213e0718215eec983f85eafc8931e2d30f58e49
+USER 1001
 
 # bullet-spark-example
 RUN mkdir -p /tmp/examples_artifacts && \
