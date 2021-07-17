@@ -121,4 +121,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: sketchbench/bullet-${{ matrix.component }}
           short-description: ${{ matrix.description }}
-          readme-filepath: ./components/${{ matrix.component }}/README.md
+          readme-filepath: ${{ matrix.context }}/README.md
